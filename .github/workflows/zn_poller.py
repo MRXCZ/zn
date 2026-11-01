@@ -16,11 +16,11 @@ FTP_FILE = "zn_servers.cfg"
 
 INTERVAL = 15
 TIMEOUT  = 2.0
-MAXNAME  = 26
+MAXNAME  = 50
 
 SERVERS = [
     ("^4Zombie^8Nation", "213.199.49.8", 28960),
-    ("^4[^7ZN^4]B^7otzombie",     "213.199.49.8", 28965),
+    ("^4[^7ZN^4]B^7otzombie", "213.199.49.8", 28965),
 ]
 
 HDR = b"\xff\xff\xff\xff"
