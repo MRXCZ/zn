@@ -2,8 +2,8 @@ name: ZN server poll
 
 on:
   schedule:
-    - cron: "*/5 * * * *"      # schnellster Takt, den GitHub erlaubt
-  workflow_dispatch:           # Knopf zum manuellen Testen
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
 
 jobs:
   poll:
