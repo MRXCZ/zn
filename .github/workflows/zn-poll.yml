@@ -15,7 +15,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Poll servers and upload via FTP
-        run: python tools/zn_poller.py --once
+        run: python .github/workflows/zn_poller.py --once
         env:
           FTP_HOST: ${{ secrets.FTP_HOST }}
           FTP_USER: ${{ secrets.FTP_USER }}
