@@ -15,6 +15,11 @@ Ohne FTP (Poller laeuft auf dem Gameserver): FTP_HOST leer lassen und
         python3 zn_poller.py /pfad/zum/server/zn_servers.cfg
 """
 import ftplib, io, os, re, socket, sys, time
+from datetime import datetime, timezone
+try:
+    from zoneinfo import ZoneInfo
+except Exception:
+    ZoneInfo = None
 
 # --- FTP-Zugang zu deinem CoD2-Serverordner -------------------------------
 FTP_HOST = os.environ.get("FTP_HOST", "")                 # z.B. "ftp.meinhoster.de"  (leer = kein FTP)
@@ -33,8 +38,8 @@ MAXNAME  = 26          # sichtbare Zeichen (Farbcodes zaehlen nicht)
 # Reihenfolge = Zeile 1 / Zeile 2 im Menue.
 # (Anzeigename falls offline, IP, Port)
 SERVERS = [
-    ("^4Zombie^8Nation ^7Zombie Server", "213.199.49.8", 28960),
-    ("^4[^7ZN^4]B^7otzombie Server",     "213.199.49.8", 28965),
+    ("^4Zombie^8Nation", "213.199.49.8", 28960),
+    ("^4[^7ZN^4]B^7otzombie",     "213.199.49.8", 28965),
 ]
 
 HDR = b"\xff\xff\xff\xff"
@@ -59,6 +64,15 @@ def cut_colored(s, maxvisible):
         vis += 1
         i += 1
     return out
+
+
+def stamp():
+    """Zeitstempel fuer die Anzeige im Menue, z.B. 01.11.~14:35~CET (Leerzeichen als ~)."""
+    try:
+        now = datetime.now(ZoneInfo("Europe/Berlin"))
+    except Exception:
+        now = datetime.now(timezone.utc)
+    return now.strftime("%d.%m.~%H:%M~%Z")
 
 
 def getinfo(ip, port):
@@ -135,6 +149,8 @@ def main():
         # 3. Zeile: Heartbeat (aendert sich bei jedem Durchlauf). Das GSC erkennt
         # daran, ob der Poller noch laeuft, und zeigt sonst "keine Daten".
         lines.append(str(int(time.time())))
+        # 4. Zeile: Zeitstempel zum Anzeigen (Berlin-Zeit). Aeltere GSC-Versionen ignorieren sie.
+        lines.append(stamp())
         payload = ("\n".join(lines) + "\n").encode("latin1", errors="replace")
         try:
             if use_ftp:
@@ -144,7 +160,7 @@ def main():
                 with open(tmp, "wb") as f:
                     f.write(payload)
                 os.replace(tmp, out)
-            print(time.strftime("%H:%M:%S"), "ok:", " || ".join(lines[:-1]))
+            print(time.strftime("%H:%M:%S"), "ok:", " || ".join(lines[:len(SERVERS)]))
         except Exception as e:
             print(time.strftime("%H:%M:%S"), "Upload-Fehler:", e)
         if once:
