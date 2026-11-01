@@ -1,0 +1,23 @@
+name: ZN server poll
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"      # schnellster Takt, den GitHub erlaubt
+  workflow_dispatch:           # Knopf zum manuellen Testen
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Poll servers and upload via FTP
+        run: python tools/zn_poller.py --once
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASS: ${{ secrets.FTP_PASS }}
+          FTP_DIR:  ${{ secrets.FTP_DIR }}
